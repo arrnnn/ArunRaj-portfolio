@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Arun Raj M R — AI Engineer"
+description = "A polished personal portfolio for Arun Raj M R, showcasing his AI engineering projects, skills, development approach, experience, and contact links."
+version = "1.0.0"
+id = "artifacts/arun-raj-portfolio"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 26144
+
+[services.development]
+run = "pnpm --filter @workspace/arun-raj-portfolio run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/arun-raj-portfolio", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/arun-raj-portfolio/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26144"
+BASE_PATH = "/"
