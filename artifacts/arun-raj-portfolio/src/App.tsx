@@ -1,5 +1,5 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
@@ -26,6 +26,12 @@ const skills = [
 ];
 
 const processSteps = ['Idea', 'Architecture', 'AI-assisted development', 'Test & debug', 'Validate', 'Deploy'];
+const learningCertificates = [
+  { title: '1 Million Prompters', organization: 'Dubai Future Foundation' },
+  { title: 'Claude AI with Vertex AI', organization: 'Anthropic' },
+  { title: 'Web Development', organization: 'Tegrand Infotech' },
+  { title: 'Cybersecurity Workshop', organization: 'Redteam Hacker Academy' },
+];
 const buildCards = [
   ['01', 'Explore', 'Architecture ideas and technical approaches'],
   ['02', 'Build', 'Accelerate implementation and boilerplate'],
@@ -37,7 +43,8 @@ const buildCards = [
 const external = { target: '_blank', rel: 'noreferrer' };
 
 function Reveal({ children, className = '', delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  return <motion.div className={className} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.14 }} transition={{ duration: 0.65, delay, ease: [0.2, 0.7, 0.2, 1] }}>{children}</motion.div>;
+  const reduceMotion = useReducedMotion();
+  return <motion.div className={className} initial={reduceMotion ? false : { opacity: 0, y: 16, filter: 'blur(5px)' }} whileInView={reduceMotion ? undefined : { opacity: 1, y: 0, filter: 'blur(0px)' }} viewport={{ once: true, amount: 0.14 }} transition={{ duration: 0.72, delay, ease: [0.2, 0.7, 0.2, 1] }}>{children}</motion.div>;
 }
 
 function Eyebrow({ children, index }: { children: ReactNode; index: string }) {
@@ -114,9 +121,10 @@ function FoodSnapVisual() {
 
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
   const { scrollYProgress } = useScroll();
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 2.7]);
-  const rotateX = useTransform(scrollYProgress, [0, 1], [0, -5]);
-  const rotateY = useTransform(scrollYProgress, [0, 1], [0, 3]);
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 85, damping: 28, mass: 0.45 });
+  const scale = useTransform(smoothProgress, [0, 1], [1, 2.7]);
+  const rotateX = useTransform(smoothProgress, [0, 1], [0, -5]);
+  const rotateY = useTransform(smoothProgress, [0, 1], [0, 3]);
 
   return <div className="portrait-background" aria-hidden="true">
     <motion.img
@@ -199,8 +207,15 @@ function App() {
         <div className="container-wide relative z-[1]">
           <div className="max-w-[760px]">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .05 }} className="eyebrow flex items-center gap-2.5"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9eb5f7] opacity-30" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#a7baf1]" /></span>AI Engineer · 2026 CSE Graduate</motion.div>
-            <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .14 }} className="mt-7 max-w-[720px] font-display text-[clamp(3.25rem,8vw,6.9rem)] font-semibold leading-[.94] tracking-[-.075em] text-[#f1f0ed]">
-              Arun Raj <span className="text-gradient">M R</span>
+            <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 18, filter: 'blur(6px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: motionDuration, delay: .14 }} className="mt-7 max-w-[720px] font-display text-[clamp(3.25rem,8vw,6.9rem)] font-semibold leading-[.94] tracking-[-.075em] text-[#f1f0ed]">
+              <motion.span
+                className="hero-name-hover inline-block"
+                whileHover={reduceMotion ? undefined : { y: -4, rotateX: -4, rotateY: 1, scale: 1.012 }}
+                transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+                style={{ transformPerspective: 900, transformOrigin: 'left bottom' }}
+              >
+                Arun Raj <span className="text-gradient">M R</span>
+              </motion.span>
             </motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: motionDuration, delay: .27 }} className="mt-6 font-display text-lg font-medium tracking-[-.025em] text-[#c9cad2] sm:text-xl">AI Engineer <span className="text-[#777b8a]">|</span> Generative AI <span className="text-[#777b8a]">|</span> Agentic AI</motion.p>
             <motion.p initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .34 }} className="mt-5 max-w-[600px] text-[15px] leading-7 text-[#a1a2ad] sm:text-base">Building practical AI systems with Machine Learning, LLMs, Agentic AI and AI-assisted development.</motion.p>
@@ -353,7 +368,7 @@ function App() {
           <SectionHeading index="07" eyebrow="Experience & education" title={<>Grounded in building.<br /><span className="text-[#8f9fc9]">Always learning.</span></>} />
           <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
             <Reveal><article className="surface h-full rounded-2xl p-6 sm:p-8">
-              <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Experience</p><h3 className="mt-4 font-display text-xl font-semibold tracking-[-.04em]">Flutter App Development Intern</h3><p className="mt-2 text-sm text-[#a8a8b2]">Pace Lab</p></div><span className="rounded-full border border-white/[.1] px-3 py-1.5 font-mono text-[9px] text-white/45">2 MONTHS</span></div>
+              <div className="flex items-start justify-between gap-4"><div><p className="eyebrow">Experience</p><h3 className="mt-4 font-display text-xl font-semibold tracking-[-.04em]">Flutter App Development Intern</h3><p className="mt-2 text-sm text-[#a8a8b2]">Pace Lab</p></div><div className="flex shrink-0 flex-wrap justify-end gap-2"><span className="rounded-full border border-white/[.1] px-3 py-1.5 font-mono text-[9px] text-white/45">2024</span><span className="rounded-full border border-white/[.1] px-3 py-1.5 font-mono text-[9px] text-white/45">2 MONTHS</span></div></div>
               <div className="mt-7 border-t border-white/[.08] pt-5"><p className="font-mono text-[9px] tracking-wider text-white/35">FOCUS AREAS</p><div className="mt-3 flex flex-wrap gap-2">{['Flutter', 'Mobile development', 'API integration', 'Debugging', 'Application development'].map(item => <span key={item} className="rounded-full border border-white/[.08] px-3 py-1.5 text-[10px] text-[#c0c0c8]">{item}</span>)}</div></div>
             </article></Reveal>
             <Reveal delay={.1}><article className="surface h-full rounded-2xl p-6 sm:p-8">
@@ -366,12 +381,21 @@ function App() {
               </div>
             </article></Reveal>
           </div>
-          <Reveal className="mt-4">
-            <div className="rounded-2xl border border-white/[.075] bg-[#11131a] p-6 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-8">
-              <div className="max-w-sm"><p className="eyebrow">Learning & workshops</p><h3 className="mt-3 font-display text-lg font-semibold tracking-[-.035em]">Curiosity, kept active.</h3></div>
-              <div className="mt-5 flex flex-wrap gap-2 sm:mt-0">{['Dubai Government AI Course', 'Anthropic Claude learning', 'Tegrand Web Development', 'RedTeam Cybersecurity Workshop'].map(item => <span key={item} className="rounded-full border border-white/[.09] bg-white/[.025] px-3.5 py-2 text-[10px] text-[#c0c0c8]">{item}</span>)}</div>
+          <div className="mt-4 rounded-2xl border border-white/[.075] bg-[#11131a] p-6 sm:p-8">
+            <div className="mb-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
+              <div><p className="eyebrow">Learning & certificates</p><h3 className="mt-3 font-display text-lg font-semibold tracking-[-.035em]">Curiosity, kept active.</h3></div>
+              <p className="max-w-sm text-[12px] leading-5 text-[#9596a1]">Programs and workshops across AI, web development, and cybersecurity.</p>
             </div>
-          </Reveal>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {learningCertificates.map((item, index) => <Reveal key={item.title} delay={index * 0.07}>
+                <article className="certificate-card h-full rounded-xl border border-white/[.075] bg-white/[.02] p-4 sm:p-5">
+                  <span className="font-mono text-[9px] uppercase tracking-[.13em] text-[#8f9fc9]">Certificate 0{index + 1}</span>
+                  <h4 className="mt-3 font-display text-[15px] font-semibold tracking-[-.025em] text-[#e5e4e4]">{item.title}</h4>
+                  <p className="mt-1.5 text-[12px] text-[#9d9ea8]">{item.organization}</p>
+                </article>
+              </Reveal>)}
+            </div>
+          </div>
         </div>
       </section>
 

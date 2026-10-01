@@ -112,6 +112,12 @@ button:focus-visible, a:focus-visible { outline: 2px solid hsl(var(--primary)); 
 .button-quiet { border: 1px solid hsl(225 12% 30%); color: #dddde5; background: hsl(228 14% 13% / .5); }
 .button-quiet:hover { transform: translateY(-2px); border-color: hsl(222 82% 72% / .72); background: hsl(228 14% 17%); }
 .text-gradient { background: linear-gradient(100deg, #e8e8e5 0%, #bacaf6 58%, #c9b5ee 100%); -webkit-background-clip: text; color: transparent; }
+.hero-name-hover { transform-style: preserve-3d; transition: filter .35s ease; }
+.hero-name-hover:hover { filter: drop-shadow(0 14px 24px hsl(222 60% 75% / .16)); }
+.hero-name-hover .text-gradient { transition: filter .35s ease; }
+.hero-name-hover:hover .text-gradient { filter: brightness(1.18); }
+.certificate-card { transition: transform .3s cubic-bezier(.2,.7,.2,1), border-color .3s ease, background-color .3s ease, box-shadow .3s ease; }
+.certificate-card:hover { transform: translateY(-3px); border-color: hsl(222 82% 72% / .35); background: hsl(228 22% 16% / .55); box-shadow: 0 14px 32px hsl(230 30% 2% / .16); }
 .nav-glass { background: hsl(228 17% 7% / .84); backdrop-filter: blur(18px); border-bottom: 1px solid hsl(225 12% 24% / .65); }
 .skill-pill { border: 1px solid hsl(225 12% 24%); background: hsl(228 14% 13% / .6); transition: .22s ease; }
 .skill-pill:hover, .skill-pill.active { border-color: hsl(222 82% 72% / .7); background: hsl(222 45% 23% / .48); color: #dce5ff; }
