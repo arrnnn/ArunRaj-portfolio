@@ -1,5 +1,5 @@
-import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
@@ -128,11 +128,36 @@ function MeetingAIVisual() {
 }
 
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 85, damping: 28, mass: 0.45 });
   const scale = useTransform(smoothProgress, [0, 1], [1, 2.7]);
   const rotateX = useTransform(smoothProgress, [0, 1], [0, -5]);
   const rotateY = useTransform(smoothProgress, [0, 1], [0, 3]);
+
+  useMotionValueEvent(smoothProgress, 'change', progress => {
+    const video = videoRef.current;
+    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
+
+    const lastFrameTime = Math.max(0, video.duration - 1 / 24);
+    const targetTime = Math.min(lastFrameTime, Math.max(0, progress) * video.duration);
+    if (Math.abs(video.currentTime - targetTime) >= 1 / 24) video.currentTime = targetTime;
+  });
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const syncFrameToScroll = () => {
+      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+      const lastFrameTime = Math.max(0, video.duration - 1 / 24);
+      video.currentTime = Math.min(lastFrameTime, Math.max(0, smoothProgress.get()) * video.duration);
+    };
+
+    video.addEventListener('loadedmetadata', syncFrameToScroll);
+    syncFrameToScroll();
+    return () => video.removeEventListener('loadedmetadata', syncFrameToScroll);
+  }, [smoothProgress, reduceMotion]);
 
   return <div className="portrait-background" aria-hidden="true">
     {reduceMotion ? (
@@ -145,12 +170,11 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
       />
     ) : (
       <motion.video
+        ref={videoRef}
         className="portrait-background-media"
-        autoPlay
-        loop
         muted
         playsInline
-        preload="metadata"
+        preload="auto"
         poster="/portfolio-background-poster.jpg"
         aria-hidden="true"
         tabIndex={-1}
