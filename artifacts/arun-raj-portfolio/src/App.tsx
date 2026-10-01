@@ -131,9 +131,7 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
   const videoRef = useRef<HTMLVideoElement>(null);
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 85, damping: 28, mass: 0.45 });
-  const scale = useTransform(smoothProgress, [0, 1], [1, 2.7]);
-  const rotateX = useTransform(smoothProgress, [0, 1], [0, -5]);
-  const rotateY = useTransform(smoothProgress, [0, 1], [0, 3]);
+  const scale = useTransform(smoothProgress, [0, 1], [1, 1.14]);
 
   useMotionValueEvent(smoothProgress, 'change', progress => {
     const video = videoRef.current;
@@ -178,7 +176,7 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
         poster="/portfolio-background-poster.jpg"
         aria-hidden="true"
         tabIndex={-1}
-        style={{ scale, rotateX, rotateY }}
+        style={{ scale }}
       >
         <source src="/portfolio-background.mp4" type="video/mp4" />
       </motion.video>
