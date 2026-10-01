@@ -1,8 +1,8 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit, Check,
-  ChevronDown, Code2, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
+  ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
   MoveUpRight, ScanLine, Sparkles, X,
 } from 'lucide-react';
 
@@ -152,6 +152,24 @@ function FoodSnapVisual() {
   </div>;
 }
 
+function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
+  const { scrollYProgress } = useScroll();
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
+  const rotateX = useTransform(scrollYProgress, [0, 1], [0, -7]);
+  const rotateY = useTransform(scrollYProgress, [0, 1], [0, 4]);
+
+  return <div className="portrait-background" aria-hidden="true">
+    <motion.img
+      src="/arun-raj-portrait.png"
+      alt=""
+      className="portrait-background-image"
+      style={reduceMotion ? undefined : { scale, rotateX, rotateY }}
+      fetchPriority="high"
+    />
+    <div className="portrait-background-overlay" />
+  </div>;
+}
+
 function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
@@ -188,7 +206,8 @@ function App() {
 
   const motionDuration = reduceMotion ? 0 : .6;
 
-  return <div className="portfolio-shell noise">
+  return <div className="portfolio-shell">
+    <PortraitBackground reduceMotion={reduceMotion} />
     <div aria-hidden="true" className="fixed left-0 right-0 top-0 z-[60] h-[2px] bg-white/[.035]">
       <motion.div className="h-full origin-left bg-gradient-to-r from-[#8ea8f3] to-[#bd9fe8]" style={{ scaleX: progress / 100 }} />
     </div>
@@ -217,10 +236,8 @@ function App() {
 
     <main>
       <section id="home" className="relative flex min-h-[760px] items-center overflow-hidden pb-20 pt-28 md:min-h-[820px]">
-        <div className="hero-orb pointer-events-none absolute -right-[18%] top-[3%] h-[750px] w-[750px] rounded-full" />
-        <div className="pointer-events-none absolute inset-0 subtle-grid opacity-35" />
-        <div className="container-wide relative z-[1] grid items-center gap-12 lg:grid-cols-[1.08fr_.92fr] lg:gap-16">
-          <div className="order-2 lg:order-1">
+        <div className="container-wide relative z-[1]">
+          <div className="max-w-[760px]">
             <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .05 }} className="eyebrow flex items-center gap-2.5"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9eb5f7] opacity-30" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#a7baf1]" /></span>AI Engineer · 2026 CSE Graduate</motion.div>
             <motion.h1 initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .14 }} className="mt-7 max-w-[720px] font-display text-[clamp(3.25rem,8vw,6.9rem)] font-semibold leading-[.94] tracking-[-.075em] text-[#f1f0ed]">
               Arun Raj <span className="text-gradient">M R</span>
@@ -236,25 +253,10 @@ function App() {
             </motion.div>
             <a href="#about" className="mt-14 inline-flex items-center gap-3 font-mono text-[9px] tracking-[.19em] text-white/40 transition hover:text-white/80" data-testid="link-scroll-explore"><span className="scroll-cue"><ArrowDown size={13} /></span>SCROLL TO EXPLORE</a>
           </div>
-          <motion.div initial={{ opacity: 0, x: 22, scale: .98 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ duration: .85, delay: .2, ease: [.2, .7, .2, 1] }} className="relative order-1 mx-auto w-full max-w-[500px] lg:order-2">
-            <div className="absolute -inset-5 rounded-[42%] bg-[radial-gradient(ellipse_at_55%_46%,rgba(102,119,179,.16),transparent_67%)] blur-2xl" />
-            <div className="relative overflow-hidden rounded-[28px] border border-white/[.12] bg-[#171820]">
-              <img src="/arun-raj-portrait.png" alt="Portrait of Arun Raj M R" className="aspect-[1.17/1] w-full object-cover object-[center_39%] sm:aspect-[1.22/1] lg:aspect-[.91/1]" fetchPriority="high" data-testid="img-profile" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#101116]/90 via-transparent to-[#11131a]/10" />
-              <div className="absolute inset-x-0 bottom-0 flex items-end justify-between p-5 sm:p-6">
-                <div><p className="font-mono text-[9px] tracking-[.16em] text-white/55">BUILDING AT THE INTERSECTION OF</p><p className="mt-2 font-display text-sm font-medium text-white/90">Machine learning · Product engineering</p></div>
-                <span className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 bg-black/20 text-[#d6def5] backdrop-blur"><BrainCircuit size={18} /></span>
-              </div>
-            </div>
-            <div className="absolute -bottom-4 -left-4 hidden items-center gap-3 rounded-2xl border border-white/[.12] bg-[#171922]/95 px-4 py-3 shadow-xl backdrop-blur sm:flex">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-[#8ea6eb]/10 text-[#a9b8ea]"><Code2 size={15} /></span>
-              <span><span className="block font-mono text-[8px] tracking-wider text-white/40">FOCUS</span><span className="mt-1 block text-[11px] text-[#dddde4]">Practical AI systems</span></span>
-            </div>
-          </motion.div>
         </div>
       </section>
 
-      <section id="about" className="section border-t border-white/[.055] bg-[#0b0d13]">
+      <section id="about" className="section border-t border-white/[.055] bg-[#0b0d13]/70">
         <div className="container-wide">
           <div className="grid gap-12 lg:grid-cols-[.95fr_1.05fr] lg:gap-24">
             <div><SectionHeading index="01" eyebrow="A little about me" title={<>I build with AI,<br /><span className="text-[#8f9fc9]">not just about AI.</span></>} /></div>
@@ -300,7 +302,7 @@ function App() {
         </div>
       </section>
 
-      <section id="projects" className="section border-y border-white/[.055] bg-[#0b0d13]">
+      <section id="projects" className="section border-y border-white/[.055] bg-[#0b0d13]/70">
         <div className="container-wide">
           <SectionHeading index="03" eyebrow="Selected work" title={<>Projects that make<br /><span className="text-[#8f9fc9]">AI useful.</span></>} description="Three hands-on explorations, from mobile vision to governed agentic workflows." />
           <div className="space-y-6">
@@ -351,7 +353,7 @@ function App() {
         </div>
       </section>
 
-      <section id="skills" className="section border-y border-white/[.055] bg-[#0b0d13]">
+      <section id="skills" className="section border-y border-white/[.055] bg-[#0b0d13]/70">
         <div className="container-wide">
           <SectionHeading index="05" eyebrow="Technical toolkit" title={<>The tools behind<br /><span className="text-[#8f9fc9]">the work.</span></>} description="A working set across AI, software, and the infrastructure that connects them. Select a cluster to focus it." />
           <div className="grid gap-3 md:grid-cols-2">
@@ -386,7 +388,7 @@ function App() {
         </div>
       </section>
 
-      <section id="experience" className="section border-y border-white/[.055] bg-[#0b0d13]">
+      <section id="experience" className="section border-y border-white/[.055] bg-[#0b0d13]/70">
         <div className="container-wide">
           <SectionHeading index="07" eyebrow="Experience & education" title={<>Grounded in building.<br /><span className="text-[#8f9fc9]">Always learning.</span></>} />
           <div className="grid gap-4 lg:grid-cols-[1.1fr_.9fr]">
@@ -425,7 +427,7 @@ function App() {
         </div>
       </section>
 
-      <section id="contact" className="relative overflow-hidden border-t border-white/[.07] bg-[#0c0e14] py-24 sm:py-32">
+      <section id="contact" className="relative overflow-hidden border-t border-white/[.07] bg-[#0c0e14]/75 py-24 sm:py-32">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(104,117,177,.16),transparent_55%)]" />
         <div className="container-wide relative text-center">
           <Reveal><Eyebrow index="09">Get in touch</Eyebrow><h2 className="mx-auto mt-6 max-w-4xl font-display text-[clamp(2.6rem,7vw,6.2rem)] font-semibold leading-[.97] tracking-[-.075em]">Let’s build something<br /><span className="text-gradient">with AI.</span></h2>
