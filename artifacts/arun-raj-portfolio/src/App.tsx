@@ -1,7 +1,7 @@
 import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
 import {
-  ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit, Check,
+  ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
   MoveUpRight, ScanLine, Sparkles, X,
 } from 'lucide-react';
@@ -72,9 +72,8 @@ function ProjectCard({ number, name, category, description, tags, visual, childr
   return <Reveal className="mb-6">
     <article onMouseMove={tiltCard} onMouseLeave={resetTilt} className="project-card surface overflow-hidden rounded-[26px]" data-testid={`project-${name.toLowerCase().replaceAll(' ', '-')}`}>
       <div className="grid lg:grid-cols-[.94fr_1.06fr]">
-        <div className="relative min-h-[270px] overflow-hidden border-b border-white/[.07] bg-[#11141d] p-5 sm:min-h-[350px] lg:order-2 lg:border-b-0 lg:border-l lg:p-8">
-          <div className="absolute inset-0 subtle-grid opacity-40" />
-          <div className="relative z-[1] flex h-full items-center justify-center">{visual}</div>
+        <div className="relative min-h-[300px] overflow-hidden border-b border-white/[.07] bg-[#11141d] sm:min-h-[350px] lg:order-2 lg:border-b-0 lg:border-l">
+          {visual}
         </div>
         <div className="flex flex-col p-6 sm:p-9 lg:order-1 lg:p-11">
           <div className="flex items-center justify-between gap-4">
@@ -102,61 +101,22 @@ function ProjectCard({ number, name, category, description, tags, visual, childr
 }
 
 function RecoverVisual() {
-  const nodes = ['Payment failure', 'ML prediction', 'LLM analysis', 'Decision router', 'Policy engine', 'Recovery simulation', 'Outcome', 'Analytics'];
-  return <div className="w-full max-w-[440px] rounded-2xl border border-white/[.1] bg-[#0d1018]/90 p-4 shadow-2xl shadow-black/30 sm:p-5">
-    <div className="mb-4 flex items-center justify-between border-b border-white/[.08] pb-3">
-      <div><div className="font-display text-sm font-semibold">Recovery workflow</div><div className="mt-1 font-mono text-[9px] text-white/40">POLICY-GOVERNED · SIMULATION</div></div>
-      <span className="rounded-full border border-[#9eb2ee]/25 bg-[#9eb2ee]/10 px-2.5 py-1 font-mono text-[9px] text-[#c1cffb]">8 NODES</span>
-    </div>
-    <div className="grid grid-cols-2 gap-2">
-      {nodes.map((node, i) => <div key={node} className={`flex items-center gap-2 rounded-lg border px-2.5 py-2.5 ${i === 4 ? 'border-[#a795d9]/40 bg-[#a795d9]/[.09]' : 'border-white/[.07] bg-white/[.025]'}`}>
-        <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${i < 2 ? 'bg-[#93a8ec]' : i === 4 ? 'bg-[#bba5e8]' : 'bg-[#697184]'}`} />
-        <span className="truncate text-[10px] text-[#d2d1d8]">{node}</span>
-      </div>)}
-    </div>
-    <div className="mt-4 flex items-center justify-between rounded-lg bg-white/[.035] px-3 py-2.5">
-      <span className="font-mono text-[9px] text-white/42">DECISION TRACE</span><span className="flex items-center gap-1.5 text-[10px] text-[#c3d0fb]"><Check size={12} />Policy checked</span>
-    </div>
-  </div>;
+  return <img src="/recoverai-screenshot.jpg" alt="RecoverAI project screenshot" loading="lazy" decoding="async" className="project-screenshot" />;
 }
 
 function VoyagerVisual() {
-  return <div className="w-full max-w-[410px] rotate-[-1deg] rounded-2xl border border-white/[.11] bg-[#11141c] p-4 shadow-2xl shadow-black/30 sm:p-5">
-    <div className="flex items-center justify-between"><span className="font-mono text-[9px] tracking-[.12em] text-[#aabaf2]">VOYAGER / YOUR TRIP</span><span className="rounded-full bg-[#8198e8]/10 px-2 py-1 text-[9px] text-[#c8d2f6]">AI PLANNED</span></div>
-    <div className="mt-5 flex items-end justify-between">
-      <div><p className="font-mono text-[9px] text-white/35">7 DAYS · COUPLES</p><h4 className="mt-1 font-display text-2xl font-semibold tracking-[-.05em]">Kyoto, Japan</h4></div>
-      <div className="text-right"><p className="font-mono text-[9px] text-white/35">EST. BUDGET</p><p className="mt-1 text-sm text-[#d2d8ee]">$1,840</p></div>
-    </div>
-    <div className="mt-5 space-y-2">
-      {[['DAY 01', 'Arrive · Nishiki Market'], ['DAY 02', 'Fushimi Inari · Higashiyama'], ['DAY 03', 'Arashiyama · Riverside lunch']].map(([day, item], i) => <div key={day} className="flex items-center gap-3 rounded-lg border border-white/[.07] bg-white/[.025] p-2.5"><span className="font-mono text-[8px] text-[#99a9df]">{day}</span><span className="text-[10px] text-[#d2d0d9]">{item}</span>{i === 0 && <Sparkles size={12} className="ml-auto text-[#aab9ee]" />}</div>)}
-    </div>
-    <div className="mt-4 flex gap-2"><span className="rounded-md border border-white/[.08] px-2 py-1.5 font-mono text-[8px] text-white/45">EXPORT PDF</span><span className="rounded-md border border-white/[.08] px-2 py-1.5 font-mono text-[8px] text-white/45">SHARE TRIP</span></div>
-  </div>;
+  return <img src="/voyager-ai-screenshot.jpg" alt="Voyager AI project screenshot" loading="lazy" decoding="async" className="project-screenshot" />;
 }
 
 function FoodSnapVisual() {
-  return <div className="relative w-[190px] rounded-[33px] border-[5px] border-[#292c35] bg-[#080a0e] p-2 shadow-2xl shadow-black/50 sm:w-[205px]">
-    <div className="relative overflow-hidden rounded-[25px] bg-[#151922]">
-      <div className="absolute left-1/2 top-2 z-10 h-3 w-14 -translate-x-1/2 rounded-full bg-[#080a0e]" />
-      <div className="h-[310px] px-3 pb-3 pt-7">
-        <div className="flex items-center justify-between"><span className="font-display text-[11px] font-bold">FoodSnap</span><ScanLine size={13} className="text-[#9daee7]" /></div>
-        <p className="mt-4 text-[9px] text-white/45">TODAY · LUNCH</p>
-        <div className="mt-2 flex h-[88px] items-center justify-center rounded-xl border border-[#c09a6e]/20 bg-[radial-gradient(ellipse_at_50%_60%,rgba(180,135,83,.35),rgba(80,66,50,.12)_58%,rgba(25,28,34,.7))]">
-          <div className="h-12 w-12 rounded-full border border-[#e0c69e]/35 bg-[#b9834c]/25 shadow-[0_0_20px_rgba(196,148,91,.14)]" />
-        </div>
-        <div className="mt-3 flex items-center justify-between"><span className="text-[11px] font-semibold">Masala dosa</span><span className="font-mono text-[8px] text-[#aab7e8]">92% match</span></div>
-        <div className="mt-2 grid grid-cols-2 gap-1.5">{[['Calories', '312 kcal'], ['Protein', '8.4 g'], ['Carbs', '48 g'], ['Fat', '10 g']].map(([key, value]) => <div key={key} className="rounded-lg border border-white/[.06] bg-white/[.025] p-2"><p className="text-[7px] text-white/40">{key}</p><p className="mt-1 text-[9px]">{value}</p></div>)}</div>
-        <div className="mt-3 rounded-lg border border-[#9cace5]/15 bg-[#9cace5]/[.06] p-2 text-[8px] text-[#c5cde3]">Add a protein-rich side for a more balanced meal.</div>
-      </div>
-    </div>
-  </div>;
+  return <img src="/foodsnap-ai-screenshot.jpg" alt="FoodSnap AI project screenshot" loading="lazy" decoding="async" className="project-screenshot" />;
 }
 
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
   const { scrollYProgress } = useScroll();
-  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.3]);
-  const rotateX = useTransform(scrollYProgress, [0, 1], [0, -7]);
-  const rotateY = useTransform(scrollYProgress, [0, 1], [0, 4]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 2.7]);
+  const rotateX = useTransform(scrollYProgress, [0, 1], [0, -5]);
+  const rotateY = useTransform(scrollYProgress, [0, 1], [0, 3]);
 
   return <div className="portrait-background" aria-hidden="true">
     <motion.img

@@ -71,8 +71,8 @@ button:focus-visible, a:focus-visible { outline: 2px solid hsl(var(--primary)); 
   perspective: 1100px; background: #090a10;
 }
 .portrait-background-image {
-  position: absolute; inset: -8%; width: 116%; height: 116%; object-fit: cover;
-  object-position: center 34%; opacity: .52; transform-origin: 50% 38%;
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  object-position: center 46%; opacity: .52; transform-origin: 50% 46%;
 }
 .portrait-background-overlay {
   position: absolute; inset: 0;
@@ -118,13 +118,17 @@ button:focus-visible, a:focus-visible { outline: 2px solid hsl(var(--primary)); 
 .timeline-line { background: linear-gradient(180deg, hsl(222 82% 72% / .2), hsl(258 46% 72% / .55), hsl(222 82% 72% / .15)); }
 .project-card { transform-style: preserve-3d; transition: border-color .25s ease, transform .3s ease; }
 .project-card:hover { border-color: hsl(222 82% 72% / .45); }
+.project-screenshot {
+  display: block; width: 100%; height: 300px; object-fit: cover; object-position: center;
+}
 .scroll-cue { animation: scroll-cue 1.8s ease-in-out infinite; }
 @keyframes scroll-cue { 0%,100% { transform: translateY(0); opacity:.65 } 50% { transform: translateY(5px); opacity:1 } }
 @media (max-width: 767px) {
   .container-wide { width: min(100% - 36px, 600px); }
   .section { padding: 88px 0; }
   html { scroll-padding-top: 78px; }
-  .portrait-background-image { object-position: center 34%; opacity: .42; }
+  .portrait-background-image { object-position: center 46%; opacity: .42; }
+  .project-screenshot { height: 350px; }
   .portrait-background-overlay {
     background: linear-gradient(180deg, hsl(228 17% 6% / .52), hsl(228 17% 6% / .68));
   }
