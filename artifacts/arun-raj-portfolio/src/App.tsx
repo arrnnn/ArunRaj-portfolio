@@ -55,6 +55,10 @@ function ExternalLink({ href, children, className = '', testId }: { href: string
   return <a href={href} {...external} data-testid={testId} className={className}>{children}</a>;
 }
 
+function NameLetters({ text, startIndex = 0, gradient = false }: { text: string; startIndex?: number; gradient?: boolean }) {
+  return <>{Array.from(text).map((letter, index) => <span key={startIndex + index} className={`hero-letter${gradient ? ' text-gradient' : ''}`} style={{ transitionDelay: `${(startIndex + index) * 18}ms` }}>{letter}</span>)}</>;
+}
+
 function SectionHeading({ eyebrow, title, description, index }: { eyebrow: string; title: ReactNode; description?: string; index: string }) {
   return <Reveal className="mb-12 md:mb-16">
     <Eyebrow index={index}>{eyebrow}</Eyebrow>
@@ -210,7 +214,7 @@ function App() {
       <section id="home" className="relative flex min-h-[760px] items-center overflow-hidden pb-20 pt-28 md:min-h-[820px]">
         <div className="container-wide relative z-[1]">
           <div className="max-w-[760px]">
-            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .05 }} className="eyebrow flex items-center gap-2.5"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9eb5f7] opacity-30" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#a7baf1]" /></span>AI Engineer · 2026 CSE Graduate</motion.div>
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: motionDuration, delay: .05 }} className="eyebrow flex flex-wrap items-center gap-2.5"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#9eb5f7] opacity-30" /><span className="relative inline-flex h-2 w-2 rounded-full bg-[#a7baf1]" /></span><span>AI Engineer · 2026 CSE Graduate</span><span className="inline-flex items-center gap-1.5 rounded-full border border-[#a8c9ad]/25 bg-[#a8c9ad]/[.06] px-2.5 py-1 font-mono text-[8px] tracking-[.1em] text-[#c1d5c4]"><span className="h-1.5 w-1.5 rounded-full bg-[#9ec8a5]" />Open to Full-Time & Freelance</span></motion.div>
             <motion.h1 initial={reduceMotion ? false : { opacity: 0, y: 18, filter: 'blur(6px)' }} animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }} transition={{ duration: motionDuration, delay: .14 }} className="mt-7 max-w-[720px] font-display text-[clamp(3.25rem,8vw,6.9rem)] font-semibold leading-[.94] tracking-[-.075em] text-[#f1f0ed]">
               <motion.span
                 className="hero-name-hover inline-block"
@@ -218,7 +222,8 @@ function App() {
                 transition={{ type: 'spring', stiffness: 240, damping: 20 }}
                 style={{ transformPerspective: 900, transformOrigin: 'left bottom' }}
               >
-                Arun Raj <span className="text-gradient">M R</span>
+                <span className="sr-only">Arun Raj M R</span>
+                <span aria-hidden="true"><NameLetters text="Arun Raj " /><NameLetters text="M R" startIndex={9} gradient /></span>
               </motion.span>
             </motion.h1>
             <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: motionDuration, delay: .27 }} className="mt-6 font-display text-lg font-medium tracking-[-.025em] text-[#c9cad2] sm:text-xl">AI Engineer <span className="text-[#777b8a]">|</span> Generative AI <span className="text-[#777b8a]">|</span> Agentic AI</motion.p>
@@ -288,7 +293,6 @@ function App() {
             <ProjectCard number="01 / AGENTIC AI" name="RecoverAI" category="Agentic AI · Machine Learning · AI Governance" description="An Agentic AI revenue-recovery platform that helps businesses decide what to do when payments fail, subscriptions expire, abandoned checkouts occur, or invoices become overdue." tags={['LangGraph', 'Groq / Llama', 'FastAPI', 'PostgreSQL', 'Next.js']} visual={<RecoverVisual />} links={[
               { label: 'Live demo', href: 'https://recoverai-bice.vercel.app' },
               { label: 'GitHub', href: 'https://github.com/arrnnn/recoverai' },
-              { label: 'API docs', href: 'https://recoverai-nrvw.onrender.com/docs' },
             ]}>
               <p className="font-display text-sm font-semibold text-[#e6e5e4]">ML predicts. AI recommends. Policies control.</p>
               <p className="mt-2 text-[12px] leading-6 text-[#9d9ea8]">Compared Logistic Regression, Random Forest and Gradient Boosting on 20,000 synthetic cases. The selected evaluation reports ROC-AUC 0.784, Recall 91.7% and F1 0.773.</p>
@@ -427,7 +431,7 @@ function App() {
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_115%,rgba(104,117,177,.16),transparent_55%)]" />
         <div className="container-wide relative text-center">
           <Reveal><Eyebrow index="09">Get in touch</Eyebrow><h2 className="mx-auto mt-6 max-w-4xl font-display text-[clamp(2.6rem,7vw,6.2rem)] font-semibold leading-[.97] tracking-[-.075em]">Let’s build something<br /><span className="text-gradient">with AI.</span></h2>
-            <p className="mx-auto mt-6 max-w-xl text-[14px] leading-7 text-[#a5a6b0]">Open to AI Engineering, Generative AI, and software engineering opportunities.</p>
+            <p className="mx-auto mt-6 max-w-xl text-[14px] leading-7 text-[#a5a6b0]">Open to full-time roles and freelance opportunities in AI Engineering, Generative AI, and software engineering.</p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <a href="mailto:araj73232@gmail.com" className="button-primary" data-testid="link-email-contact"><Mail size={16} />araj73232@gmail.com <MoveUpRight size={14} /></a>
               <ExternalLink href="https://linkedin.com/in/arunraajj" className="button-quiet" testId="link-linkedin-contact"><Linkedin size={16} />LinkedIn <ArrowUpRight size={13} /></ExternalLink>
