@@ -135,13 +135,30 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
   const rotateY = useTransform(smoothProgress, [0, 1], [0, 3]);
 
   return <div className="portrait-background" aria-hidden="true">
-    <motion.img
-      src="/arun-raj-portrait.png"
-      alt=""
-      className="portrait-background-image"
-      style={reduceMotion ? undefined : { scale, rotateX, rotateY }}
-      fetchPriority="high"
-    />
+    {reduceMotion ? (
+      <img
+        src="/portfolio-background-poster.jpg"
+        alt=""
+        className="portrait-background-media"
+        fetchPriority="high"
+        decoding="async"
+      />
+    ) : (
+      <motion.video
+        className="portrait-background-media"
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="metadata"
+        poster="/portfolio-background-poster.jpg"
+        aria-hidden="true"
+        tabIndex={-1}
+        style={{ scale, rotateX, rotateY }}
+      >
+        <source src="/portfolio-background.mp4" type="video/mp4" />
+      </motion.video>
+    )}
     <div className="portrait-background-overlay" />
   </div>;
 }
