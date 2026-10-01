@@ -119,6 +119,10 @@ function FoodSnapVisual() {
   return <img src="/foodsnap-ai-screenshot.jpg" alt="FoodSnap AI project screenshot" loading="lazy" decoding="async" className="project-screenshot" />;
 }
 
+function MeetingAIVisual() {
+  return <img src="/meetingai-screenshot.jpg" alt="MeetingAI meeting notes generator screenshot" loading="lazy" decoding="async" className="project-screenshot" />;
+}
+
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 85, damping: 28, mass: 0.45 });
@@ -244,7 +248,7 @@ function App() {
           <div className="mt-14 grid gap-3 sm:grid-cols-3">
             {[
               { value: '2026', label: 'B.Tech CSE Graduate', icon: GraduationCap },
-              { value: '03', label: 'Major AI Projects', icon: Layers3 },
+              { value: '04', label: 'Major AI Projects', icon: Layers3 },
               { value: 'AI', label: 'Computer Vision → GenAI → Agentic AI', icon: BrainCircuit },
             ].map((item, i) => <Reveal key={item.value} delay={i * .08}><div className="flex min-h-[126px] items-center gap-4 rounded-2xl border border-white/[.075] bg-white/[.018] p-5 sm:p-6">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[#9caee5]/15 bg-[#9caee5]/[.06] text-[#aebbe7]"><item.icon size={17} /></span>
@@ -279,7 +283,7 @@ function App() {
 
       <section id="projects" className="section border-y border-white/[.055] bg-[#0b0d13]/70">
         <div className="container-wide">
-          <SectionHeading index="03" eyebrow="Selected work" title={<>Projects that make<br /><span className="text-[#8f9fc9]">AI useful.</span></>} description="Three hands-on explorations, from mobile vision to governed agentic workflows." />
+          <SectionHeading index="03" eyebrow="Selected work" title={<>Projects that make<br /><span className="text-[#8f9fc9]">AI useful.</span></>} description="Four hands-on explorations across mobile vision, generative AI, agentic workflows, and meeting intelligence." />
           <div className="space-y-6">
             <ProjectCard number="01 / AGENTIC AI" name="RecoverAI" category="Agentic AI · Machine Learning · AI Governance" description="An Agentic AI revenue-recovery platform that helps businesses decide what to do when payments fail, subscriptions expire, abandoned checkouts occur, or invoices become overdue." tags={['LangGraph', 'Groq / Llama', 'FastAPI', 'PostgreSQL', 'Next.js']} visual={<RecoverVisual />} links={[
               { label: 'Live demo', href: 'https://recoverai-bice.vercel.app' },
@@ -304,6 +308,14 @@ function App() {
               <p className="mt-2 text-[12px] leading-6 text-[#9d9ea8]">MobileNetV2 CNN with an attention mechanism supports food image classification. Additional capabilities include TensorFlow Lite, OpenCV, OCR ingredient scanning with Tesseract, personalized food recommendations and an AI chatbot.</p>
               <p className="mt-4 text-[12px] leading-6 text-[#c2c2c9]"><span className="text-[#aebbe7]">My contribution:</span> AI model integration, backend development, API integration, system validation and testing of AI predictions and application workflows.</p>
               <div className="mt-4 flex flex-wrap gap-2">{['Python', 'Django REST Framework', 'TensorFlow', 'MySQL', 'Tesseract OCR'].map(item => <span key={item} className="rounded-full border border-white/[.08] px-2.5 py-1.5 text-[10px] text-[#b6b6bf]">{item}</span>)}</div>
+            </ProjectCard>
+            <ProjectCard number="04 / AI MEETING NOTES" name="MeetingAI" category="AI · Audio Transcription · Full-Stack" description="An AI-powered meeting notes generator that turns meeting audio into structured, actionable notes automatically." tags={['Node.js', 'Express', 'Whisper', 'LLaMA', 'JavaScript']} visual={<MeetingAIVisual />} links={[
+              { label: 'Live demo', href: 'https://ai-meeting-notes-generator.vercel.app' },
+              { label: 'GitHub', href: 'https://lnkd.in/gwvvJ8Ua' },
+            ]}>
+              <p className="font-display text-sm font-semibold text-[#e6e5e4]">From meeting audio to clear next steps.</p>
+              <p className="mt-2 text-[12px] leading-6 text-[#9d9ea8]">Whisper transcribes audio, then LLaMA creates summaries, key discussion points, and action items. Automatic language detection supports 50+ languages, and notes can be exported as TXT or PDF.</p>
+              <div className="mt-4 flex flex-wrap gap-2">{['50+ languages', 'Automatic language detection', 'TXT / PDF export', 'GitHub Actions', 'Vercel', 'Render'].map(feature => <span key={feature} className="rounded-full border border-white/[.08] px-2.5 py-1.5 text-[10px] text-[#b6b6bf]">{feature}</span>)}</div>
             </ProjectCard>
           </div>
         </div>
