@@ -1,0 +1,1 @@
+- [Scroll-scrub video performance](scroll-scrub-video.md) — prefer native-resolution, 60 fps interpolation and direct scroll mapping over upscaled 4K seeking.

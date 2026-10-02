@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
@@ -15,7 +15,7 @@ const navItems = [
   { label: 'Contact', href: '#contact' },
 ];
 
-const BACKGROUND_VIDEO_FPS = 24;
+const BACKGROUND_VIDEO_FPS = 60;
 
 function seekPortraitVideoFrame(
   video: HTMLVideoElement,
@@ -167,9 +167,8 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
   const desiredFrameRef = useRef(0);
   const seekInFlightRef = useRef(false);
   const { scrollYProgress } = useScroll();
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 200, damping: 28, mass: 0.25 });
 
-  useMotionValueEvent(smoothProgress, 'change', progress => {
+  useMotionValueEvent(scrollYProgress, 'change', progress => {
     const video = videoRef.current;
     if (video) seekPortraitVideo(video, progress, desiredFrameRef, seekInFlightRef);
   });
@@ -178,7 +177,7 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
     const video = videoRef.current;
     if (!video) return;
 
-    const syncFrameToScroll = () => seekPortraitVideo(video, smoothProgress.get(), desiredFrameRef, seekInFlightRef);
+    const syncFrameToScroll = () => seekPortraitVideo(video, scrollYProgress.get(), desiredFrameRef, seekInFlightRef);
     const seekLatestRequestedFrame = () => {
       seekInFlightRef.current = false;
       seekPortraitVideoFrame(video, desiredFrameRef.current, seekInFlightRef);
@@ -191,7 +190,7 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
       video.removeEventListener('loadedmetadata', syncFrameToScroll);
       video.removeEventListener('seeked', seekLatestRequestedFrame);
     };
-  }, [smoothProgress, reduceMotion]);
+  }, [scrollYProgress, reduceMotion]);
 
   return <div className="portrait-background" aria-hidden="true">
     {reduceMotion ? (
