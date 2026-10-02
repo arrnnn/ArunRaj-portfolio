@@ -30,7 +30,14 @@ const skills = [
   { name: 'Deployment', items: ['Vercel', 'Render', 'Neon', 'Git', 'GitHub', 'Environment Variables / Secrets'] },
 ];
 
-const processSteps = ['Idea', 'Architecture', 'AI-assisted development', 'Test & debug', 'Validate', 'Deploy'];
+const processSteps = [
+  { title: 'Idea', subtitle: 'Define the challenge' },
+  { title: 'Architecture', subtitle: 'Map systems & trade-offs' },
+  { title: 'AI-assisted development', subtitle: 'Human-led · AI-accelerated' },
+  { title: 'Test & debug', subtitle: 'Trace, isolate & refine' },
+  { title: 'Validate', subtitle: 'Verify against requirements' },
+  { title: 'Deploy', subtitle: 'Release & monitor' },
+];
 const learningCertificates = [
   { title: '1 Million Prompters', organization: 'Dubai Future Foundation' },
   { title: 'Claude AI with Vertex AI', organization: 'Anthropic' },
@@ -457,10 +464,10 @@ function App() {
           <div className="relative mt-14">
             <div className="absolute left-[16px] top-5 bottom-5 w-px timeline-line md:left-0 md:right-0 md:top-[20px] md:bottom-auto md:h-px md:w-auto" />
             <div className="relative grid gap-7 md:grid-cols-6 md:gap-4">
-              {processSteps.map((step, index) => <Reveal key={step} delay={index * .065} className="md:!transform-none">
+              {processSteps.map((step, index) => <Reveal key={step.title} delay={index * .065} className="md:!transform-none">
                 <div className="flex items-center gap-4 md:flex-col md:items-start md:gap-5">
                   <span className="z-[1] flex h-[33px] w-[33px] shrink-0 items-center justify-center rounded-full border border-[#93a7e7]/35 bg-[#10131c] font-mono text-[10px] text-[#bac8f4]">{String(index + 1).padStart(2, '0')}</span>
-                  <div className="md:min-h-[60px]"><p className="font-display text-[13px] font-semibold capitalize text-[#e3e2e2]">{step}</p><p className="mt-1 font-mono text-[9px] uppercase tracking-[.1em] text-white/35">{index === 2 ? 'Human-led · AI accelerated' : index < 3 ? 'Define & design' : 'Quality & delivery'}</p></div>
+                  <div className="md:min-h-[60px]"><p className="font-display text-[13px] font-semibold capitalize text-[#e3e2e2]">{step.title}</p><p className="mt-1 font-mono text-[9px] uppercase tracking-[.1em] text-white/35">{step.subtitle}</p></div>
                 </div>
               </Reveal>)}
             </div>
