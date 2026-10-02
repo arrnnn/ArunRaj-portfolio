@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring, useTransform } from 'framer-motion';
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll, useSpring } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
@@ -14,6 +14,21 @@ const navItems = [
   { label: 'Experience', href: '#experience' },
   { label: 'Contact', href: '#contact' },
 ];
+
+const BACKGROUND_VIDEO_FPS = 24;
+
+function seekPortraitVideo(video: HTMLVideoElement, progress: number) {
+  if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+
+  const frameCount = Math.max(1, Math.round(video.duration * BACKGROUND_VIDEO_FPS));
+  const normalizedProgress = Math.min(1, Math.max(0, progress));
+  const frameIndex = Math.min(frameCount - 1, Math.round(normalizedProgress * (frameCount - 1)));
+  const targetTime = frameIndex / BACKGROUND_VIDEO_FPS;
+
+  if (Math.abs(video.currentTime - targetTime) >= 0.5 / BACKGROUND_VIDEO_FPS) {
+    video.currentTime = targetTime;
+  }
+}
 
 const skills = [
   { name: 'AI & ML', items: ['Artificial Intelligence', 'Machine Learning', 'Deep Learning', 'Generative AI', 'LLMs', 'Agentic AI', 'Computer Vision', 'OCR'] },
@@ -130,27 +145,18 @@ function MeetingAIVisual() {
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const { scrollYProgress } = useScroll();
-  const smoothProgress = useSpring(scrollYProgress, { stiffness: 85, damping: 28, mass: 0.45 });
-  const scale = useTransform(smoothProgress, [0, 1], [1, 1.14]);
+  const smoothProgress = useSpring(scrollYProgress, { stiffness: 200, damping: 28, mass: 0.25 });
 
   useMotionValueEvent(smoothProgress, 'change', progress => {
     const video = videoRef.current;
-    if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
-
-    const lastFrameTime = Math.max(0, video.duration - 1 / 24);
-    const targetTime = Math.min(lastFrameTime, Math.max(0, progress) * video.duration);
-    if (Math.abs(video.currentTime - targetTime) >= 1 / 24) video.currentTime = targetTime;
+    if (video) seekPortraitVideo(video, progress);
   });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const syncFrameToScroll = () => {
-      if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-      const lastFrameTime = Math.max(0, video.duration - 1 / 24);
-      video.currentTime = Math.min(lastFrameTime, Math.max(0, smoothProgress.get()) * video.duration);
-    };
+    const syncFrameToScroll = () => seekPortraitVideo(video, smoothProgress.get());
 
     video.addEventListener('loadedmetadata', syncFrameToScroll);
     syncFrameToScroll();
@@ -167,7 +173,7 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
         decoding="async"
       />
     ) : (
-      <motion.video
+      <video
         ref={videoRef}
         className="portrait-background-media"
         muted
@@ -176,10 +182,9 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
         poster="/portfolio-background-poster.jpg"
         aria-hidden="true"
         tabIndex={-1}
-        style={{ scale }}
       >
         <source src="/portfolio-background.mp4" type="video/mp4" />
-      </motion.video>
+      </video>
     )}
     <div className="portrait-background-overlay" />
   </div>;
