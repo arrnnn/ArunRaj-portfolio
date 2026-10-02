@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
-import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import {
   ArrowDown, ArrowDownRight, ArrowRight, ArrowUpRight, BrainCircuit,
   ChevronDown, Github, GraduationCap, Layers3, Linkedin, Mail, Menu,
@@ -15,40 +15,10 @@ const navItems = [
   { label: 'Contact', href: '#contact' },
 ];
 
-const BACKGROUND_VIDEO_FPS = 60;
+type PortraitDirection = 'forward' | 'reverse';
 
-function seekPortraitVideoFrame(
-  video: HTMLVideoElement,
-  frameIndex: number,
-  seekInFlight: { current: boolean },
-) {
-  if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-  if (seekInFlight.current || video.seeking) return;
-
-  const frameCount = Math.max(1, Math.round(video.duration * BACKGROUND_VIDEO_FPS));
-  const boundedFrame = Math.min(frameCount - 1, Math.max(0, frameIndex));
-  const targetTime = boundedFrame / BACKGROUND_VIDEO_FPS;
-
-  if (Math.abs(video.currentTime - targetTime) < 0.5 / BACKGROUND_VIDEO_FPS) return;
-
-  seekInFlight.current = true;
-  video.currentTime = targetTime;
-}
-
-function seekPortraitVideo(
-  video: HTMLVideoElement,
-  progress: number,
-  desiredFrame: { current: number },
-  seekInFlight: { current: boolean },
-) {
-  if (!Number.isFinite(video.duration) || video.duration <= 0) return;
-
-  const frameCount = Math.max(1, Math.round(video.duration * BACKGROUND_VIDEO_FPS));
-  const normalizedProgress = Math.min(1, Math.max(0, progress));
-  const frameIndex = Math.min(frameCount - 1, Math.round(normalizedProgress * (frameCount - 1)));
-  desiredFrame.current = frameIndex;
-  seekPortraitVideoFrame(video, frameIndex, seekInFlight);
-}
+const SCROLL_IDLE_PAUSE_MS = 240;
+const BACKGROUND_VIDEO_FRAME_DURATION = 1 / 60;
 
 const skills = [
   { name: 'AI & ML', items: ['Artificial Intelligence', 'Machine Learning', 'Deep Learning', 'Generative AI', 'LLMs', 'Agentic AI', 'Computer Vision', 'OCR'] },
@@ -163,34 +133,165 @@ function MeetingAIVisual() {
 }
 
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const desiredFrameRef = useRef(0);
-  const seekInFlightRef = useRef(false);
-  const { scrollYProgress } = useScroll();
-
-  useMotionValueEvent(scrollYProgress, 'change', progress => {
-    const video = videoRef.current;
-    if (video) seekPortraitVideo(video, progress, desiredFrameRef, seekInFlightRef);
-  });
+  const forwardVideoRef = useRef<HTMLVideoElement>(null);
+  const reverseVideoRef = useRef<HTMLVideoElement>(null);
+  const [activeDirection, setActiveDirection] = useState<PortraitDirection>('forward');
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
+    if (reduceMotion) return;
+    const forward = forwardVideoRef.current;
+    const reverse = reverseVideoRef.current;
+    if (!forward || !reverse) return;
 
-    const syncFrameToScroll = () => seekPortraitVideo(video, scrollYProgress.get(), desiredFrameRef, seekInFlightRef);
-    const seekLatestRequestedFrame = () => {
-      seekInFlightRef.current = false;
-      seekPortraitVideoFrame(video, desiredFrameRef.current, seekInFlightRef);
+    let currentDirection: PortraitDirection = 'forward';
+    let desiredDirection: PortraitDirection = 'forward';
+    let pendingDirection: PortraitDirection | null = null;
+    let pendingSeekVideo: HTMLVideoElement | null = null;
+    let pendingSeekHandler: (() => void) | null = null;
+    let isScrolling = false;
+    let lastScrollY = window.scrollY;
+    let idleTimer: number | undefined;
+    let transitionId = 0;
+
+    const videoFor = (direction: PortraitDirection) => direction === 'forward' ? forward : reverse;
+    const clearPendingSeek = () => {
+      if (pendingSeekVideo && pendingSeekHandler) {
+        pendingSeekVideo.removeEventListener('seeked', pendingSeekHandler);
+      }
+      pendingSeekVideo = null;
+      pendingSeekHandler = null;
+      pendingDirection = null;
+    };
+    const playVideo = (video: HTMLVideoElement) => {
+      if (
+        video.ended
+        || (Number.isFinite(video.duration)
+          && video.currentTime >= video.duration - BACKGROUND_VIDEO_FRAME_DURATION / 2)
+      ) return;
+      video.playbackRate = 1;
+      void video.play().catch(() => video.pause());
+    };
+    const pauseBoth = () => {
+      forward.pause();
+      reverse.pause();
+    };
+    const timelineTime = () => currentDirection === 'forward'
+      ? forward.currentTime
+      : Math.max(0, forward.duration - BACKGROUND_VIDEO_FRAME_DURATION - reverse.currentTime);
+
+    const switchDirection = (direction: PortraitDirection) => {
+      desiredDirection = direction;
+      if (!isScrolling) return;
+
+      if (direction === currentDirection) {
+        transitionId += 1;
+        clearPendingSeek();
+        playVideo(videoFor(direction));
+        return;
+      }
+
+      if (pendingDirection === direction) return;
+      const duration = forward.duration;
+      if (!Number.isFinite(duration) || duration <= 0) return;
+      const currentTime = timelineTime();
+      if (
+        (direction === 'reverse' && currentTime <= BACKGROUND_VIDEO_FRAME_DURATION / 2)
+        || (direction === 'forward' && currentTime >= duration - BACKGROUND_VIDEO_FRAME_DURATION)
+      ) {
+        transitionId += 1;
+        clearPendingSeek();
+        pauseBoth();
+        return;
+      }
+
+      const nextVideo = videoFor(direction);
+      if (nextVideo.readyState < HTMLMediaElement.HAVE_METADATA) {
+        pendingDirection = direction;
+        return;
+      }
+
+      clearPendingSeek();
+      const requestId = ++transitionId;
+      pendingDirection = direction;
+      const targetTime = Math.min(
+        Math.max(
+          0,
+          direction === 'forward'
+            ? currentTime
+            : duration - BACKGROUND_VIDEO_FRAME_DURATION - currentTime,
+        ),
+        Math.max(0, duration - BACKGROUND_VIDEO_FRAME_DURATION),
+      );
+
+      const finishSwitch = () => {
+        if (
+          requestId !== transitionId
+          || pendingDirection !== direction
+          || !isScrolling
+          || desiredDirection !== direction
+        ) return;
+
+        clearPendingSeek();
+        videoFor(currentDirection).pause();
+        currentDirection = direction;
+        setActiveDirection(direction);
+        playVideo(nextVideo);
+      };
+
+      if (
+        !nextVideo.seeking
+        && nextVideo.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA
+        && Math.abs(nextVideo.currentTime - targetTime) < 1 / 120
+      ) {
+        finishSwitch();
+        return;
+      }
+
+      pendingSeekVideo = nextVideo;
+      pendingSeekHandler = finishSwitch;
+      nextVideo.addEventListener('seeked', finishSwitch, { once: true });
+      nextVideo.currentTime = targetTime;
     };
 
-    video.addEventListener('loadedmetadata', syncFrameToScroll);
-    video.addEventListener('seeked', seekLatestRequestedFrame);
-    syncFrameToScroll();
+    const pauseAfterScroll = () => {
+      if (idleTimer !== undefined) window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(() => {
+        isScrolling = false;
+        transitionId += 1;
+        clearPendingSeek();
+        pauseBoth();
+      }, SCROLL_IDLE_PAUSE_MS);
+    };
+
+    const onScroll = () => {
+      const nextScrollY = window.scrollY;
+      const delta = nextScrollY - lastScrollY;
+      lastScrollY = nextScrollY;
+      if (Math.abs(delta) < 0.5) return;
+
+      isScrolling = true;
+      switchDirection(delta > 0 ? 'forward' : 'reverse');
+      pauseAfterScroll();
+    };
+    const onVideoMetadata = () => {
+      if (!isScrolling) return;
+      if (pendingDirection === desiredDirection) pendingDirection = null;
+      switchDirection(desiredDirection);
+    };
+
+    forward.addEventListener('loadedmetadata', onVideoMetadata);
+    reverse.addEventListener('loadedmetadata', onVideoMetadata);
+    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      video.removeEventListener('loadedmetadata', syncFrameToScroll);
-      video.removeEventListener('seeked', seekLatestRequestedFrame);
+      window.removeEventListener('scroll', onScroll);
+      forward.removeEventListener('loadedmetadata', onVideoMetadata);
+      reverse.removeEventListener('loadedmetadata', onVideoMetadata);
+      if (idleTimer !== undefined) window.clearTimeout(idleTimer);
+      transitionId += 1;
+      clearPendingSeek();
+      pauseBoth();
     };
-  }, [scrollYProgress, reduceMotion]);
+  }, [reduceMotion]);
 
   return <div className="portrait-background" aria-hidden="true">
     {reduceMotion ? (
@@ -202,18 +303,32 @@ function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) 
         decoding="async"
       />
     ) : (
-      <video
-        ref={videoRef}
-        className="portrait-background-media"
-        muted
-        playsInline
-        preload="auto"
-        poster="/portfolio-background-poster.jpg"
-        aria-hidden="true"
-        tabIndex={-1}
-      >
-        <source src="/portfolio-background.mp4" type="video/mp4" />
-      </video>
+      <>
+        <video
+          ref={forwardVideoRef}
+          className={`portrait-background-media${activeDirection === 'forward' ? '' : ' portrait-background-media--inactive'}`}
+          muted
+          playsInline
+          preload="auto"
+          poster="/portfolio-background-poster.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source src="/portfolio-background.mp4" type="video/mp4" />
+        </video>
+        <video
+          ref={reverseVideoRef}
+          className={`portrait-background-media${activeDirection === 'reverse' ? '' : ' portrait-background-media--inactive'}`}
+          muted
+          playsInline
+          preload="auto"
+          poster="/portfolio-background-poster.jpg"
+          aria-hidden="true"
+          tabIndex={-1}
+        >
+          <source src="/portfolio-background-reverse.mp4" type="video/mp4" />
+        </video>
+      </>
     )}
     <div className="portrait-background-overlay" />
   </div>;
