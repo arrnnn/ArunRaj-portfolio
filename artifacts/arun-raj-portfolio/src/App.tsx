@@ -17,17 +17,37 @@ const navItems = [
 
 const BACKGROUND_VIDEO_FPS = 24;
 
-function seekPortraitVideo(video: HTMLVideoElement, progress: number) {
+function seekPortraitVideoFrame(
+  video: HTMLVideoElement,
+  frameIndex: number,
+  seekInFlight: { current: boolean },
+) {
+  if (!Number.isFinite(video.duration) || video.duration <= 0) return;
+  if (seekInFlight.current || video.seeking) return;
+
+  const frameCount = Math.max(1, Math.round(video.duration * BACKGROUND_VIDEO_FPS));
+  const boundedFrame = Math.min(frameCount - 1, Math.max(0, frameIndex));
+  const targetTime = boundedFrame / BACKGROUND_VIDEO_FPS;
+
+  if (Math.abs(video.currentTime - targetTime) < 0.5 / BACKGROUND_VIDEO_FPS) return;
+
+  seekInFlight.current = true;
+  video.currentTime = targetTime;
+}
+
+function seekPortraitVideo(
+  video: HTMLVideoElement,
+  progress: number,
+  desiredFrame: { current: number },
+  seekInFlight: { current: boolean },
+) {
   if (!Number.isFinite(video.duration) || video.duration <= 0) return;
 
   const frameCount = Math.max(1, Math.round(video.duration * BACKGROUND_VIDEO_FPS));
   const normalizedProgress = Math.min(1, Math.max(0, progress));
   const frameIndex = Math.min(frameCount - 1, Math.round(normalizedProgress * (frameCount - 1)));
-  const targetTime = frameIndex / BACKGROUND_VIDEO_FPS;
-
-  if (Math.abs(video.currentTime - targetTime) >= 0.5 / BACKGROUND_VIDEO_FPS) {
-    video.currentTime = targetTime;
-  }
+  desiredFrame.current = frameIndex;
+  seekPortraitVideoFrame(video, frameIndex, seekInFlight);
 }
 
 const skills = [
@@ -144,23 +164,33 @@ function MeetingAIVisual() {
 
 function PortraitBackground({ reduceMotion }: { reduceMotion: boolean | null }) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const desiredFrameRef = useRef(0);
+  const seekInFlightRef = useRef(false);
   const { scrollYProgress } = useScroll();
   const smoothProgress = useSpring(scrollYProgress, { stiffness: 200, damping: 28, mass: 0.25 });
 
   useMotionValueEvent(smoothProgress, 'change', progress => {
     const video = videoRef.current;
-    if (video) seekPortraitVideo(video, progress);
+    if (video) seekPortraitVideo(video, progress, desiredFrameRef, seekInFlightRef);
   });
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const syncFrameToScroll = () => seekPortraitVideo(video, smoothProgress.get());
+    const syncFrameToScroll = () => seekPortraitVideo(video, smoothProgress.get(), desiredFrameRef, seekInFlightRef);
+    const seekLatestRequestedFrame = () => {
+      seekInFlightRef.current = false;
+      seekPortraitVideoFrame(video, desiredFrameRef.current, seekInFlightRef);
+    };
 
     video.addEventListener('loadedmetadata', syncFrameToScroll);
+    video.addEventListener('seeked', seekLatestRequestedFrame);
     syncFrameToScroll();
-    return () => video.removeEventListener('loadedmetadata', syncFrameToScroll);
+    return () => {
+      video.removeEventListener('loadedmetadata', syncFrameToScroll);
+      video.removeEventListener('seeked', seekLatestRequestedFrame);
+    };
   }, [smoothProgress, reduceMotion]);
 
   return <div className="portrait-background" aria-hidden="true">
